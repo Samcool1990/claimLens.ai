@@ -29,6 +29,16 @@ def init_db() -> None:
         if raw != ":memory:":
             Path(raw).parent.mkdir(parents=True, exist_ok=True)
     Base.metadata.create_all(engine)
+    if url.startswith("sqlite"):
+        with engine.begin() as connection:
+            clause_columns = {
+                row._mapping["name"]
+                for row in connection.exec_driver_sql("PRAGMA table_info(clauses)")
+            }
+            if clause_columns and "clause_type" not in clause_columns:
+                connection.exec_driver_sql(
+                    "ALTER TABLE clauses ADD COLUMN clause_type VARCHAR(32) NOT NULL DEFAULT 'unknown'"
+                )
 
 
 def get_db() -> Generator[Session, None, None]:

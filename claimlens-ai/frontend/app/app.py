@@ -34,9 +34,17 @@ if uploaded:
         try:
             response = requests.post(f"{API_URL}/api/v1/documents/ingest", data=data, files=files, timeout=120)
             if response.status_code >= 400:
-                st.error(response.json().get("detail", "Ingestion rejected."))
+                try:
+                    detail = response.json().get("detail", "Ingestion rejected.")
+                except ValueError:
+                    detail = response.text[:500] or "Ingestion rejected."
+                st.error(detail)
             else:
-                result = response.json()
+                try:
+                    result = response.json()
+                except ValueError:
+                    st.error(f"The ingestion API returned an invalid response: {response.text[:500]}")
+                    st.stop()
                 if result["duplicate"]:
                     st.warning("Duplicate document fingerprint. No new database rows were created.")
                 else:
