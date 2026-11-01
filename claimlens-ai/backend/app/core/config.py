@@ -3,11 +3,18 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+
+def sqlite_url(path: Path) -> str:
+    return f"sqlite:///{path.resolve().as_posix()}"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
     app_name: str = "ClaimLens AI"
-    database_url: str = "sqlite:///./data/claimlens.db"
-    upload_dir: Path = Path("./data/uploads")
+    database_url: str = sqlite_url(PROJECT_ROOT / "data" / "claimlens.db")
+    upload_dir: Path = PROJECT_ROOT / "data" / "uploads"
     max_upload_bytes: int = 25 * 1024 * 1024
     max_pdf_pages: int = 100
     ollama_base_url: str = "http://ollama:11434"
