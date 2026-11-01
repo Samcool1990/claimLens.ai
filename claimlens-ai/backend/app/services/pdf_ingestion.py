@@ -1,5 +1,4 @@
 import hashlib
-import io
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -95,8 +94,6 @@ def segment_page(page: ExtractedPage) -> list[ExtractedClause]:
         if not raw:
             continue
         start = start + text[start:end].find(raw)
-        if not text:
-            continue
         end = start + len(raw)
         heading = raw.split("\n", 1)[0][:512]
         result.append(ExtractedClause(heading, heading, raw, page.number, start, end))
@@ -124,7 +121,6 @@ def ingest_pdf_bytes(db: Session, data: bytes, filename: str, media_type: str, m
         pages = extract_pages(pdf)
     finally:
         pdf.close()
-    clauses_by_page = [segment_page(p) for p in pages]
     try:
         policy = db.scalar(select(Policy).where(
             Policy.carrier == metadata.carrier,
@@ -155,12 +151,10 @@ def ingest_pdf_bytes(db: Session, data: bytes, filename: str, media_type: str, m
                             storage_location=_save_upload(filename, data, digest))
         db.add(document)
         db.flush()
-        page_text_offset = 0
         for page in pages:
             db.add(DocumentPage(document_id=document.id, page_index=page.index,
                                 page_number=page.number, text_length=len(page.text),
                                 content_hash=hashlib.sha256(page.text.encode()).hexdigest()))
-            page_text_offset += len(page.text) + 1
         ordinal = 0
         for page in pages:
             for clause in segment_page(page):

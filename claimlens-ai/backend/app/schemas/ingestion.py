@@ -14,7 +14,7 @@ class PolicyMetadata(BaseModel):
     source_metadata: str | None = None
 
     @model_validator(mode="after")
-    def validate_coverage_period(self):
+    def validate_coverage_period(self) -> "PolicyMetadata":
         if self.expiry_date < self.effective_date:
             raise ValueError("expiry_date must not be before effective_date")
         return self
@@ -35,7 +35,7 @@ class PolicyVersionCreate(BaseModel):
     source_metadata: str | None = None
 
     @model_validator(mode="after")
-    def validate_coverage_period(self):
+    def validate_coverage_period(self) -> "PolicyVersionCreate":
         if self.expiry_date < self.effective_date:
             raise ValueError("expiry_date must not be before effective_date")
         return self

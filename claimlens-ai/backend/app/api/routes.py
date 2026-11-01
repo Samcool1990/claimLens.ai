@@ -93,6 +93,8 @@ async def ingest(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors(include_url=False)) from exc
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors(include_url=False)) from exc
 
 
 @router.get("/documents/{document_id}")
@@ -152,3 +154,5 @@ async def ingest_existing(policy_id: int, version_id: int, file: UploadFile = Fi
         return {"document": document_dict(document), "duplicate": duplicate}
     except PdfValidationError as exc:
         raise HTTPException(422, str(exc)) from exc
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors(include_url=False)) from exc
