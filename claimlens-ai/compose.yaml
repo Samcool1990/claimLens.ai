@@ -1,0 +1,45 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: sqlite:////data/claimlens.db
+      UPLOAD_DIR: /data/uploads
+      MAX_UPLOAD_BYTES: 26214400
+      MAX_PDF_PAGES: 100
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - claimlens-data:/data
+    ports:
+      - "${CLAIMLENS_API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${CLAIMLENS_WEB_PORT:-8501}:8501"
+
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["milestone2"]
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+
+volumes:
+  claimlens-data:
+  ollama-data:

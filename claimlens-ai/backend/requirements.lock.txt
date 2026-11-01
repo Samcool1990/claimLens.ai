@@ -1,0 +1,8 @@
+# Generated runtime lock; install the version ranges in requirements.txt together with
+# Python 3.13-compatible wheels:
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+SQLAlchemy==2.0.40
+pydantic-settings==2.9.1
+python-multipart==0.0.20
+PyMuPDF==1.25.5

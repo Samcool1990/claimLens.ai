@@ -1,0 +1,17 @@
+[
+  {
+    "id": "cl-policy-upload-001",
+    "input": "fixtures/heading-policy.pdf",
+    "expected": {"status": "committed", "minimum_clauses": 1, "requires_traceability": true}
+  },
+  {
+    "id": "cl-policy-dedup-001",
+    "input": "fixtures/heading-policy.pdf",
+    "expected": {"status": "duplicate", "requires_traceability": true, "row_count_delta": 0}
+  },
+  {
+    "id": "cl-policy-invalid-001",
+    "input": "fixtures/not-a-policy.txt",
+    "expected": {"status": "rejected", "http_status": 422}
+  }
+]
